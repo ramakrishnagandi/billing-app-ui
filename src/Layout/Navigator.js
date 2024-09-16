@@ -1,8 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import AuthService from "../Auth/AuthService";
 
 export default function
     () {
+    const logOut = () => {
+        AuthService.logout();
+    };
     return (
         <div>
             <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -17,6 +21,7 @@ export default function
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <Link className="btn btn-outline-light" to="/adduser">Add User</Link>
+                    <Link className="btn btn-outline-light" to="/" onClick={logOut}>Logout</Link>
                 </div>
             </nav>
         </div>

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import authService from "../Auth/AuthService";
 
 export default function UpdateUser() {
     let navigate = useNavigate();
@@ -28,13 +29,30 @@ export default function UpdateUser() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        await axios.put(`http://localhost:8989/user/${id}`, user);
-        navigate("/");
+        await authService.updateUser(id, user).then(
+            () => {
+                navigate("/home");
+            }
+        )
+        //await axios.put(`http://localhost:8989/user/${id}`, user);
+
     };
 
     const loadUser = async () => {
-        const result = await axios.get(`http://localhost:8989/user/${id}`);
-        setUser(result.data);
+        await authService.getUserInfo(id).then(
+            (response) => {
+                setUser(response.data);
+            },
+            (error) => {
+                console.log("Private page", error.response);
+                // Invalid token
+                if (error.response && error.response.status === 403) {
+                    authService.logout();
+                    navigate("/home");
+                    window.location.reload();
+                }
+            }
+        );
     };
 
     return (
@@ -80,19 +98,6 @@ export default function UpdateUser() {
                                 placeholder="Enter your e-mail address"
                                 name="email"
                                 value={email}
-                                onChange={(e) => onInputChange(e)}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">
-                                Password
-                            </label>
-                            <input
-                                type={"password"}
-                                className="form-control"
-                                placeholder="Enter your password"
-                                name="password"
-                                value={password}
                                 onChange={(e) => onInputChange(e)}
                             />
                         </div>

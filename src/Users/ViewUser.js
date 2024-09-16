@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import authService from "../Auth/AuthService";
 
 export default function ViewUser() {
+  let navigate = useNavigate();
   const [user, setUser] = useState({
     name: "",
     username: "",
@@ -16,8 +18,20 @@ export default function ViewUser() {
   }, []);
 
   const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8989/user/${id}`);
-    setUser(result.data);
+    await authService.getUserInfo(id).then(
+      (response) => {
+        setUser(response.data);
+      },
+      (error) => {
+        console.log("Private page", error.response);
+        // Invalid token
+        if (error.response && error.response.status === 403) {
+          authService.logout();
+          navigate("/home");
+          window.location.reload();
+        }
+      }
+    );
   };
 
   return (
@@ -49,7 +63,7 @@ export default function ViewUser() {
               </ul>
             </div>
           </div>
-          <Link className="btn btn-primary my-2" to={"/"}>
+          <Link className="btn btn-primary my-2" to={"/home"}>
             Back to Home
           </Link>
         </div>

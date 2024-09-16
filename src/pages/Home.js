@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import authService from "../Auth/AuthService";
 
 
 export default function Home() {
+    const navigate = useNavigate();
     const { id } = useParams();
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const [users, setUsers] = useState([]);
     useEffect(() => {
@@ -12,13 +15,30 @@ export default function Home() {
     }, []);
 
     const loadUsers = async () => {
-        const result = await axios.get("http://localhost:8989/users");
-        setUsers(result.data);
+        authService.getAllUsers().then(
+            (response) => {
+                setUsers(response.data);
+            },
+            (error) => {
+                console.log("Private page", error.response);
+                // Invalid token
+                if (error.response && error.response.status === 403) {
+                    authService.logout();
+                    navigate("/login");
+                    window.location.reload();
+                }
+            }
+        );
     }
 
     const deleteUser = async (id) => {
-        await axios.delete(`http://localhost:8989/user/${id}`);
-        loadUsers();
+        authService.deleteUser(id).then(
+            () => {
+                loadUsers();
+            }
+        )
+        //await axios.delete(`http://localhost:8989/user/${id}`);
+
     };
 
     return (

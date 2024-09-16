@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.custom-background {
+  background-color: #7cb9f7;
+  /* Replace this with your desired color */
+}
+
+.form-label {
+  color: #020b14;
+  /* Replace with your desired font color */
+  font-size: 20px;
+  /* Replace with your desired font size */
+}
+
+.bg-custom {
+  background-color: #727171;
+  /* Replace with your desired color */
+}
