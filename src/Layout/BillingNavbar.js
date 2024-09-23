@@ -2,8 +2,7 @@ import React from 'react'
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import AuthService from "../Auth/AuthService";
 
-function BillingNavbar() {
-    const isUserAuth = localStorage.getItem("user");
+function BillingNavbar({ isLoggedIn, userType }) {
     const logOut = () => {
         AuthService.logout();
         localStorage.clear();
@@ -13,9 +12,9 @@ function BillingNavbar() {
         <div>
             <Navbar className="navbar navbar-expand-lg navbar-dark bg-primary">
                 {
-                    isUserAuth ?
+                    isLoggedIn ?
                         <Container>
-                            <Navbar.Brand href="#">Billing App</Navbar.Brand>
+                            <Navbar.Brand href="/home">Billing App</Navbar.Brand>
                             <Navbar.Toggle aria-controls="basic-navbar-nav" />
                             <Navbar.Collapse id="basic-navbar-nav">
                                 <Nav className="me-auto">
@@ -23,42 +22,51 @@ function BillingNavbar() {
                                     <Nav>
                                         <Nav.Link href="/">Customer</Nav.Link>
                                     </Nav>
-                                    { /* <NavDropdown title="Customer" id="customer-dropdown">
-                                        <NavDropdown.Item href="#add-customer">Add</NavDropdown.Item>
-                                        <NavDropdown.Item href="#update-customer">Update</NavDropdown.Item>
-                                        <NavDropdown.Item href="#delete-customer">Delete</NavDropdown.Item>
-                                    </NavDropdown> */}
-                                    {/* Product Dropdown */}
-                                    <Nav>
-                                        <Nav.Link href="/product">Product</Nav.Link>
-                                    </Nav>
 
-                                    {/* Product Dropdown */}
-                                    <Nav>
-                                        <Nav.Link href="/catogory">Category</Nav.Link>
-                                    </Nav>
-
+                                    {
+                                        userType === "admin" || userType === "manager" ? (
+                                            <Nav>
+                                                <Nav.Link href="/product">Product</Nav.Link>
+                                                <Nav.Link href="/catogory">Category</Nav.Link>
+                                            </Nav>
+                                        ) : <></>
+                                    }
                                     {/* Invoice Dropdown */}
-                                    <NavDropdown title="Invoice" id="invoice-dropdown">
-                                        <NavDropdown.Item href="/newInvoice">New Invoice</NavDropdown.Item>
-                                        <NavDropdown.Item href="#invoices-list">Invoices List</NavDropdown.Item>
+                                    <NavDropdown title="Orders" id="invoice-dropdown">
+                                        <NavDropdown.Item href="/newOrder">New Order</NavDropdown.Item>
+                                        <NavDropdown.Item href="/ordersList">Orders List</NavDropdown.Item>
                                     </NavDropdown>
 
-                                    {/* Reports */}
-                                    <Nav.Link href="#generate-reports">Reports</Nav.Link>
+
+                                    {
+                                        userType === "admin" || userType === "manager" ? (
+                                            <Nav>
+                                                <Nav.Link href="#generate-reports">Reports</Nav.Link>
+                                            </Nav>
+                                        ) : <></>
+                                    }
                                 </Nav>
                                 {/* Logout on the right */}
                                 <Nav className="ms-auto">
-                                    <Nav.Link href="/" onClick={logOut}>Logout</Nav.Link>
+                                    {
+                                        userType === "admin" ? (
+                                            <Nav.Link className="ms-auto" href="/adduser">
+                                                Add User
+                                            </Nav.Link>
+                                        ) : <></>
+                                    }
+                                    <Nav.Link href="/" onClick={logOut}>
+                                        Logout
+                                    </Nav.Link>
+
+
                                 </Nav>
                             </Navbar.Collapse>
                         </Container>
                         :
                         <Container>
                             <Nav className="ms-auto">
-                                <Nav.Link className="btn btn-outline-dark" href="/adduser">
-                                    Add User
-                                </Nav.Link>
+
                                 <Nav.Link className="btn btn-outline-dark" href="/">
                                     Login
                                 </Nav.Link>

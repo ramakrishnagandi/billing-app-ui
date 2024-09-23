@@ -16,9 +16,12 @@ const login = (username, password) => {
             withCredentials: true,
         })
         .then((response) => {
-            console.log(response.data);
+            alert("login successful");
+            console.log(JSON.stringify(response.data));
             if (response.data.accessToken) {
-                localStorage.setItem("user", JSON.stringify(response.data));
+                window.localStorage.setItem("user", JSON.stringify(response.data));
+                window.localStorage.setItem("role", response.data.role);
+                window.localStorage.setItem("isLoggedIn", true);
             }
 
             return response.data;

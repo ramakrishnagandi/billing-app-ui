@@ -5,7 +5,6 @@ export default function AuthHeader() {
     if (user && user.accessToken) {
         console.log("Token", user.accessToken);
         return { "Authorization": 'Bearer ' + user.accessToken };
-        //return { "x-auth-token": user.accessToken };
     } else {
         return { "xyz": "rama" };
     }

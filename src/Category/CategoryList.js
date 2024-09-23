@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import categoryService from "./CategoryService";
 
 function CategoryList() {
     const [categories, setCategories] = useState([]);
@@ -10,18 +11,24 @@ function CategoryList() {
     }, []);
 
     const fetchCategories = async () => {
-        const response = await axios.get('http://localhost:8989/api/categories');
-        setCategories(response.data);
+        categoryService.getAllCategories().then
+            ((response) => {
+                setCategories(response.data)
+            }, (error) => {
+                console.log("Private page", error.response);
+            }
+            );
+
     };
 
     const createCategory = async () => {
-        await axios.post('http://localhost:8989/api/categories', { categoryName });
+        await categoryService.createCategory(categoryName);
         setCategoryName('');
         fetchCategories();
     };
 
     const deleteCategory = async (id) => {
-        await axios.delete(`http://localhost:8989/api/categories/${id}`);
+        await categoryService.deleteCategory(id);
         fetchCategories();
     };
 

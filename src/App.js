@@ -11,10 +11,12 @@ import Product from "./Product/ProductList";
 import Catogory from "./Category/CategoryList";
 
 function App() {
+  const isLoggedIn = window.localStorage.getItem("isLoggedIn");
+  const userType = window.localStorage.getItem("role");
   return (
     <div className="App">
       <Router>
-        <Navigator />
+        <Navigator isLoggedIn={isLoggedIn} userType={userType} />
         <Routes>
           <Route exact path="/" element={<Login />} />
           <Route exact path="/home" element={<Home />} />
