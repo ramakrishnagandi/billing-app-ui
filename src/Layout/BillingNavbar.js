@@ -19,9 +19,11 @@ function BillingNavbar({ isLoggedIn, userType }) {
                             <Navbar.Collapse id="basic-navbar-nav">
                                 <Nav className="me-auto">
                                     {/* Customer Dropdown */}
-                                    <Nav>
-                                        <Nav.Link href="/">Customer</Nav.Link>
-                                    </Nav>
+                                    <NavDropdown title="Customer" id="invoice-dropdown">
+                                        <NavDropdown.Item href="/addCustomer">New Customer</NavDropdown.Item>
+                                        <NavDropdown.Item href="/">Update Customer</NavDropdown.Item>
+                                    </NavDropdown>
+
 
                                     {
                                         userType === "admin" || userType === "manager" ? (
