@@ -1,0 +1,82 @@
+.shadow-primary {
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5);
+    /* Bootstrap primary color */
+}
+
+.shadow-danger {
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.5);
+    /* Bootstrap danger color */
+}
+
+.shadow-grey {
+    box-shadow: 0 4px 10px rgba(14, 14, 14, 0.5);
+    /* Bootstrap danger color */
+}
+
+.shadow-success {
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.5);
+    /* Bootstrap success color */
+}
+
+.shadow-warning {
+    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.5);
+    /* Bootstrap warning color */
+}
+
+.table-header {
+    background-color: #007bff;
+    /* Bootstrap primary color */
+    color: white;
+    /* Text color */
+}
+
+.table-header-danger {
+    background-color: #dc3545;
+    /* Bootstrap danger color */
+    color: white;
+    /* Text color */
+}
+
+.table-header-success {
+    background-color: #28a745;
+    /* Bootstrap success color */
+    color: white;
+    /* Text color */
+}
+
+.table-header-warning {
+    background-color: #ffc107;
+    /* Bootstrap warning color */
+    color: black;
+    /* Text color */
+}
+
+.table th,
+.table td {
+    border-right: 2px solid #dee2e6;
+    /* Right border for each cell */
+}
+
+/* Optional: Add specific styling for the last column to avoid an extra border */
+.table th:last-child,
+.table td:last-child {
+    border-right: none;
+    /* Remove border for the last column */
+}
+
+/* Change header font color */
+.table thead th {
+    color: #007bff;
+    /* Change to desired header font color */
+    font-weight: bold;
+}
+
+.table tbody tr {
+    border-bottom: 2px solid #dee2e6;
+    /* Ensure there's a bottom border for each row */
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    /* Ensure there's a bottom border for each row */
+}

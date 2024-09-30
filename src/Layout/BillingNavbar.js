@@ -43,7 +43,7 @@ function BillingNavbar({ isLoggedIn, userType }) {
                                     {
                                         userType === "admin" || userType === "manager" ? (
                                             <Nav>
-                                                <Nav.Link href="#generate-reports">Reports</Nav.Link>
+                                                <Nav.Link href="/reports">Reports</Nav.Link>
                                             </Nav>
                                         ) : <></>
                                     }

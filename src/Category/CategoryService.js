@@ -4,7 +4,6 @@ import authHeader from "../Auth/AuthHeader";
 const API_URL = "http://localhost:8989/";
 
 const getAllCategories = () => {
-    alert("loading categories");
     return axios.get(API_URL + "api/categories",
         {
             headers: authHeader()

@@ -13,6 +13,7 @@ function CategoryList() {
     const fetchCategories = async () => {
         categoryService.getAllCategories().then
             ((response) => {
+                console.log(response.data);
                 setCategories(response.data)
             }, (error) => {
                 console.log("Private page", error.response);

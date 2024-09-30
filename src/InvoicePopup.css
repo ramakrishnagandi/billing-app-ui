@@ -1,0 +1,53 @@
+/* General Styles */
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    /* Black border */
+    width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+/* Center content on print */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .invoice-container {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        padding: 40px;
+        box-sizing: border-box;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 700px;
+        /* Adjust width based on your content */
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th,
+    table td {
+        text-align: center;
+        padding: 8px;
+    }
+
+    h1,
+    h3,
+    p,
+    h4 {
+        text-align: center;
+    }
+}

@@ -4,7 +4,10 @@ import axios from 'axios';
 function ProductList() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [newProduct, setNewProduct] = useState({ productName: '', price: '', weight: '', quantity: '', categoryId: '' });
+    const [newProduct, setNewProduct] = useState({
+        productName: '', price: '',
+        weight: 0, quantity: '', categoryId: ''
+    });
 
     useEffect(() => {
         fetchProducts();
@@ -55,6 +58,7 @@ function ProductList() {
                         <option value="kg">KG</option>
                         <option value="gms">Grams</option>
                         <option value="ltr">Liters</option>
+                        <option value="pc">Pc</option>
                     </select>
                 </div>
                 <input type="number" className="form-control" name="quantity" placeholder="Quantity"

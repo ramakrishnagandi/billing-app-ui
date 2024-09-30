@@ -20,6 +20,7 @@ const login = (username, password) => {
             console.log(JSON.stringify(response.data));
             if (response.data.accessToken) {
                 window.localStorage.setItem("user", JSON.stringify(response.data));
+                window.localStorage.setItem("username", username);
                 window.localStorage.setItem("role", response.data.role);
                 window.localStorage.setItem("isLoggedIn", true);
             }

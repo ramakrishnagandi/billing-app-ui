@@ -1,15 +1,24 @@
 import Select from 'react-select'
-import React, { useState, useEffect } from 'react';
+import './../billing.css';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useReactToPrint } from 'react-to-print';
+import InvoicePopup from './InvoicePopup';
 
 
 function NewOrderForm() {
+    let navigate = useNavigate();
+    const user = localStorage.getItem("username");
     const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [newOrder, setNewOrder] = useState({
         customerId: '',
+        customerName: '',
         totalAmount: 0,
+        orderStatus: '',
+        createdUsername: user,
+        totalItems: 0,
         orderItems: []
     });
 
@@ -19,10 +28,28 @@ function NewOrderForm() {
     const [pricePerUnit, setPricePerUnit] = useState('');
     const [totalPrice, setTotalPrice] = useState('');
 
+    const [updateIndex, setUpdateIndex] = useState(null);
+    const [showInvoice, setShowInvoice] = useState(false);
+    const componentRef = useRef();
+
     useEffect(() => {
+        console.log("---------------------------------------------------", user);
         fetchProducts();
         fetchCustomers();
     }, []);
+
+    useEffect(() => {
+        setNewOrder(prevOrder => ({
+            ...prevOrder,
+            totalItems: totalItems
+        }));
+    }, [newOrder.orderItems]);
+
+    const orderStatusOptions = [
+        { value: 'Success', label: 'Success' },
+        { value: 'Failed', label: 'Failed' },
+        { value: 'Pending', label: 'Pending' }
+    ];
 
     const fetchCustomers = async () => {
         const response = await axios.get('http://localhost:8989/api/customer/customers');
@@ -34,16 +61,29 @@ function NewOrderForm() {
         setProducts(response.data);
     };
 
+    const handleGenerateInvoice = () => {
+        setShowInvoice(true);
+    };
+
+
+
+    const handleSubmit = () => {
+        console.log("All orders", newOrder);
+        if (newOrder) {
+            alert("Order creation failed");
+        }
+    };
+
     useEffect(() => {
         console.log('Updated newProduct:', newOrder);
     }, [newOrder]);
 
     const productOptions = products.map(prod => ({
         value: prod.productId,
-        label: prod?.productName // Use optional chaining to avoid errors
+        label: prod?.productName
             ? prod.unit
-                ? `${prod.productName}-${prod.unit}` // If productUnit exists
-                : prod.productName // If productUnit is empty
+                ? `${prod.productName}-${prod.unit}`
+                : prod.productName
             : 'Unknown Product',
         price: prod.price || 0
     }));
@@ -69,7 +109,8 @@ function NewOrderForm() {
     const handleCustomerChange = (selectedOption) => {
         setNewOrder(prevProduct => ({
             ...prevProduct,
-            customerId: selectedOption.value
+            customerId: selectedOption.value,
+            customerName: selectedOption.label
         }));
     };
 
@@ -90,11 +131,27 @@ function NewOrderForm() {
                 totalPrice: (pricePerUnit * quantity).toFixed(2)
             };
 
-            setNewOrder({
-                ...newOrder,
-                orderItems: [...newOrder.orderItems, newItem],
-                totalAmount: (parseFloat(newOrder.totalAmount) + parseFloat(newItem.totalPrice)).toFixed(2)
-            });
+            if (updateIndex !== null) {
+                const updatedItems = [...newOrder.orderItems];
+                updatedItems[updateIndex] = newItem;
+
+                const updatedTotalAmount = updatedItems.reduce((total, item) => total + parseFloat(item.totalPrice), 0);
+
+                setNewOrder({
+                    ...newOrder,
+                    orderItems: updatedItems,
+                    totalAmount: updatedTotalAmount.toFixed(2)
+                });
+                setUpdateIndex(null);
+
+            } else {
+                setNewOrder({
+                    ...newOrder,
+                    orderItems: [...newOrder.orderItems, newItem],
+                    totalAmount: (parseFloat(newOrder.totalAmount) + parseFloat(newItem.totalPrice)).toFixed(2),
+
+                });
+            }
 
             setSelectedProduct(null);
             setTotalPrice('');
@@ -104,10 +161,55 @@ function NewOrderForm() {
         console.log("Selected Order", newOrder);
     };
 
+    const totalItems = newOrder.orderItems.reduce((acc, item) => acc + parseInt(item.quantity), 0);
+
+    const handleStatusChange = (selectedOption) => {
+        setNewOrder(prevOrder => ({
+            ...prevOrder,
+            orderStatus: selectedOption.value
+        }));
+    };
+
+    const handleUpdateProduct = (index) => {
+        const productToUpdate = newOrder.orderItems[index];
+
+        // Populate the fields with the selected product's details
+        const selectedProductOption = productOptions.find(option => option.value === productToUpdate.productId);
+
+        setSelectedProduct(selectedProductOption);
+        setQuantity(productToUpdate.quantity);
+        setPricePerUnit(productToUpdate.pricePerUnit);
+        setTotalPrice(productToUpdate.totalPrice);
+        setUpdateIndex(index); // Set the update index to track which product is being updated
+    };
+
+    const handleRemoveProduct = (index) => {
+        const removedItem = newOrder.orderItems[index];
+        const updatedItems = newOrder.orderItems.filter((_, i) => i !== index);
+
+        setNewOrder(prevOrder => ({
+            ...prevOrder,
+            orderItems: updatedItems,
+            totalAmount: (parseFloat(prevOrder.totalAmount) - parseFloat(removedItem.totalPrice)).toFixed(2)
+        }));
+    };
+
+    const handleCloseInvoice = () => {
+        setShowInvoice(false);
+    };
+
+    const handleAddCustomer = () => {
+        navigate("/addCustomer");
+    };
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current, // Reference the component to print
+    });
+
     return (
         <div className="container">
-            <h3>Create New Order</h3>
-            <div className="input-group mb-3">
+            <h4 className="text-primary ">Create New Order</h4>
+            <div className="input-group mb-3 shadow-grey">
                 <Select
                     type="text"
                     className="form-control"
@@ -116,14 +218,13 @@ function NewOrderForm() {
                     options={customerOptions}
                     onChange={handleCustomerChange}
                     placeholder="Enter Customer Name"
-                >
-                </Select>
-                <Link className="btn btn-primary mb-3 shadow" to="/addCustomer">
+                />
+                <button className="btn btn-primary shadow-grey" onClick={handleAddCustomer}>
                     Add Customer
-                </Link>
+                </button>
             </div>
 
-            <div className="input-group mb-3">
+            <div className="input-group mb-3 shadow-grey">
                 <Select
                     type="text"
                     className="form-control"
@@ -151,21 +252,22 @@ function NewOrderForm() {
                     value={totalPrice}
                     readOnly />
 
-                <Link className="btn btn-outline-danger mx-2" to="/">
-                    Cancel
-                </Link>
+                <button type="button" className="btn btn-primary  shadow-grey" onClick={handleAddProduct}>
+                    {updateIndex !== null ? "Update Product" : "Add Product"}
+                </button>
             </div>
 
             <div>
-                <h3>Ordered Items</h3>
-                <table className="table border shadow">
+                <h4 className="text-primary">Added Items</h4>
+                <table className="table border shadow-grey ">
                     <thead>
                         <tr>
-                            <th scope="col">S No</th>
-                            <th scope="col">Product Name</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Total Price</th>
+                            <th scope="col" className="table-header">S No</th>
+                            <th scope="col" className="table-header">Product Name</th>
+                            <th scope="col" className="table-header">Price</th>
+                            <th scope="col" className="table-header">Quantity</th>
+                            <th scope="col" className="table-header">Total Price</th>
+                            <th scope="col" className="table-header">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -178,13 +280,49 @@ function NewOrderForm() {
                                 <td>{product.pricePerUnit}</td>
                                 <td>{product.quantity}</td>
                                 <td>{product.totalPrice}</td>
+                                <td>
+                                    <button className="btn btn-warning me-2" onClick={() => handleUpdateProduct(index)}>
+                                        Update
+                                    </button>
+
+                                    <button className="btn btn-danger" onClick={() => handleRemoveProduct(index)}>
+                                        Remove
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                <div className="row justify-content-end align-items-center mb-3">
+                    <div className="col-auto">
+                        <h5>Total Items: {newOrder.totalItems}</h5>
+                        <h5>Total Amount: {newOrder.totalAmount}</h5>
+                    </div>
+                    <div className="col-auto">
+                        <Select
+                            type="text"
+                            className="form-control"
+                            name="status"
+                            value={orderStatusOptions.find(option => option.value === newOrder.status)}
+                            options={orderStatusOptions}
+                            onChange={handleStatusChange}
+                            placeholder="Order Status"
+                        />
+                    </div>
+                    <div className="col-auto">
+                        <button type="button" className="btn btn-danger shadow-grey" onClick={handleGenerateInvoice}>
+                            Generate Invoice
+                        </button>
+                    </div>
+                </div>
+
             </div>
+
+            {showInvoice && (
+                <InvoicePopup ref={componentRef} newOrder={newOrder} onClose={handleCloseInvoice} />
+            )}
         </div>
-    )
+    );
 }
 
 export default NewOrderForm;
