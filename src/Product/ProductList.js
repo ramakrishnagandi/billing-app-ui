@@ -6,7 +6,7 @@ function ProductList() {
     const [categories, setCategories] = useState([]);
     const [newProduct, setNewProduct] = useState({
         productName: '', price: '',
-        weight: 0, quantity: '', categoryId: ''
+        weight: 0, quantity: 0, categoryId: ''
     });
 
     useEffect(() => {
@@ -28,7 +28,7 @@ function ProductList() {
     const createProduct = async () => {
         console.log(newProduct);
         await axios.post('http://localhost:8989/api/products', newProduct);
-        setNewProduct({ productName: '', price: '', weight: '', quantity: '', categoryId: '' });
+        setNewProduct({ productName: '', price: '', weight: 0, quantity: 0, categoryId: '' });
         fetchProducts();
     };
 

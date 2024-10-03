@@ -79,20 +79,24 @@ function AddCustomerForm() {
         if (validateForm()) {
             try {
                 const response = await axios.post('http://localhost:8989/api/customer/create', newCustomer);
-                console.log("Customer added successfully", response.data);
-                // Optionally, you can reset the form after submitting
-                setNewCustomer({
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    mobileNo: '',
-                    addressLine: '',
-                    city: '',
-                    state: '',
-                    country: '',
-                    postelCode: ''
-                });
-                setErrors({});
+                console.log("Customer added successfully", response);
+                if (response.status === 208) {
+                    setErrors(prevErrors => ({ ...prevErrors, mobileNo: response.data.error }));
+                } else {
+                    setNewCustomer({
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        mobileNo: '',
+                        addressLine: '',
+                        city: '',
+                        state: '',
+                        country: '',
+                        postelCode: ''
+                    });
+                    setErrors({});
+                }
+
             } catch (error) {
                 console.error("Error adding customer", error);
             }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Pagination } from 'react-bootstrap';
 import Select from 'react-select'
 import axios from 'axios';
 
 export const GenerateReport = () => {
     const [customers, setCustomers] = useState([]);
     const [resp, setResponse] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
     const [filters, setFilters] = useState({
         orderNumber: '',
         customerId: '',
@@ -15,12 +16,34 @@ export const GenerateReport = () => {
         endDate: ''
     });
 
-    const [mobNum, setMobNum] = useState('');
+    const [totalPages, setTotalPages] = useState(1);
+    const pageSize = 10;
 
     useEffect(() => {
         console.log("---------------------------------------------------", filters);
         fetchCustomers();
     }, [filters]);
+
+    useEffect(() => {
+        fetchOrders(currentPage);
+    }, [filters, currentPage]);
+
+    const fetchOrders = (page) => {
+        axios.post('http://localhost:8989/api/order/filter', filters, {
+            params: {
+                page: page,
+                size: pageSize // Send current page and page size to backend
+            }
+        })
+            .then(response => {
+                setResponse(response.data.content); // Assuming "orders" field contains the paginated result
+                setTotalPages(response.data.totalPages);
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error("Error fetching orders:", error);
+            });
+    };
 
     const fetchCustomers = async () => {
         const response = await axios.get('http://localhost:8989/api/customer/customers');
@@ -28,12 +51,15 @@ export const GenerateReport = () => {
         console.log(">>>>>>>>>>>>>>>>", customers)
     };
 
-    const customerOptions = customers.map(cust => ({
+    const customerOptions = [
+        { value: '', label: 'Select customer' },
+        ...customers.map(cust => ({
 
-        value: cust.customerId,
-        label: cust.firstName,
-        mobile: cust.mobileNo
-    }));
+            value: cust.customerId,
+            label: cust.firstName,
+            mobile: cust.mobileNo
+        }))
+    ];
 
     const selectedCustomer = customers.find(
         option => option.value === filters.customerId
@@ -58,20 +84,13 @@ export const GenerateReport = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log(filters);
+        setCurrentPage(0); // Reset to page 0 when filters are applied
+        fetchOrders(0);
+    };
 
-        axios.post('http://localhost:8989/api/order/filter', filters, {
-            params: {
-                page: 0,
-                size: 10
-            }
-        })
-            .then(response => {
-                setResponse(response.data)
-                console.log("Generated orders list:", response.data);
-            })
-            .catch(error => {
-                console.error("Error submitting order:", error);
-            });
+    // Handle pagination click
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber - 1); // Pages are zero-based in backend
     };
 
     return (
@@ -154,6 +173,22 @@ export const GenerateReport = () => {
                     </tbody>
                 </table>
             </div>
+            {/* Pagination Component */}
+            <Pagination>
+                <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 0} />
+                <Pagination.Prev onClick={() => handlePageChange(currentPage)} disabled={currentPage === 0} />
+                {[...Array(totalPages).keys()].map(page => (
+                    <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => handlePageChange(page + 1)} // Pages in Pagination are 1-based
+                    >
+                        {page + 1}
+                    </Pagination.Item>
+                ))}
+                <Pagination.Next onClick={() => handlePageChange(currentPage + 2)} disabled={currentPage === totalPages - 1} />
+                <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages - 1} />
+            </Pagination>
         </div>
 
     )
